@@ -135,8 +135,13 @@ int get_userpass_input(prompts_t *p, unsigned char *in, int inlen)
     int ret;
     ret = cmdline_get_passwd_input(p, in, inlen);
 
+	// Here is where we allow SSH_ASKPASS to function
     if (ret == -1)
-	ret = console_get_userpass_input(p, in, inlen);
+		ret = askpass_get_userpass_input(p, in, inlen);
+
+    if (ret == -1)
+		ret = console_get_userpass_input(p, in, inlen);
+
     return ret;
 }
 
