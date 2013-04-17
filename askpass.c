@@ -64,7 +64,13 @@ int askpass_get_userpass_input(prompts_t *p, unsigned char *in, int inlen)
 		char* command = (char*) malloc(sizeof(char) * bufSize);
 
 		// We call ASKPASS program once for each prompt
-		sprintf_s(command, bufSize, "\"%s\" \"%s%s\"", askpass, preamble, pr->prompt);
+		// Note that not only are the askpass exe name and the prompt parameter enclosed in quotes, 
+		// but the entire string is then re-quoted in it's entirety too. Ie
+		// ""path\to\askpass.exe" "prompt""
+		// This is the only way to deal with spaces in the askpass path in _popen, which fails if
+		// you only quote the exe path (and you can't escape spaces any other way)
+		// I found this answer here: http://eli.thegreenplace.net/2011/01/28/on-spaces-in-the-paths-of-programs-and-files-on-windows/
+		sprintf_s(command, bufSize, "\"\"%s\" \"%s%s\"\"", askpass, preamble, pr->prompt);
 
 		askpassout = _popen(command, "rt");
 		if (!askpassout)
