@@ -82,15 +82,20 @@ int askpass_get_userpass_input(prompts_t *p, unsigned char *in, int inlen)
 		}
 
 		// Read askpass program's stdout up to the limit of the space allocated by caller
-		fgets(pr->result, pr->result_len, askpassout);
-
-		if (!feof(askpassout))
+		if (fgets(pr->result, pr->result_len, askpassout) == NULL)
 		{
 			// All was not well
 			free(command);
 			free(preamble);
 			fprintf(stderr, "Error reading SSH_ASKPASS output for prompt: %s\n", pr->prompt);
 		    cleanup_exit(1);
+		}
+
+		// Exclude carriage return
+		{
+			int l = strlen(pr->result);
+			if (pr->result[l-1] == '\n')
+				pr->result[l-1] = '\0';
 		}
 
 		free(command);
